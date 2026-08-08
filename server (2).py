@@ -96,10 +96,10 @@ class GameServer:
                     self.scores[0] += 1
                     self.reset_ball()
 
-                if self.scores[0] >= 100:
+                if self.scores[0] >= 10:
                     self.game_over = True
                     self.winner = 0
-                elif self.scores[1] >= 100:
+                elif self.scores[1] >= 10:
                     self.game_over = True
                     self.winner = 1
 
@@ -111,8 +111,8 @@ class GameServer:
         self.ball = {
             "x": WIDTH // 2,
             "y": HEIGHT // 2,
-            "vx": BALL_SPEED * random.choice([-1, 1]),
-            "vy": BALL_SPEED * random.choice([-1, 1])
+            "vx": BALL_SPEED * random.choice([-2, 2]),
+            "vy": BALL_SPEED * random.choice([-2, 2])
         }
 
     def accept_players(self):
