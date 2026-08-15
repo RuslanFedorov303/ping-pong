@@ -6,13 +6,15 @@ from threading import Thread
 # ---ПУГАМЕ НАЛАШТУВАННЯ ---
 WIDTH, HEIGHT = 800, 600
 init()
+mixer.init()
 screen = display.set_mode((WIDTH, HEIGHT))
 clock = time.Clock()
 display.set_caption("Пінг-Понг")
+
 # ---СЕРВЕР ---
 def connect_to_server():
     while True:
-        try:
+        try: #'4.tcp.eu.ngrok.io', 25536
             client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             client.connect(('localhost', 8080)) # ---- Підключення до сервера
             buffer = ""
@@ -41,8 +43,18 @@ def receive():
 font_win = font.Font(None, 72)
 font_main = font.Font(None, 36)
 # --- ЗОБРАЖЕННЯ ----
+fon_game = transform.scale(image.load('images/ChatGPT Image 1 серп. 2026 р., 16_40_15.png'), (WIDTH, HEIGHT))
+fon_win  = transform.scale(image.load('images/images.jfif'), (WIDTH, HEIGHT))
+fon_lose = transform.scale(image.load('images/images (1).jfif'), (WIDTH, HEIGHT))
+fon_load = transform.scale(image.load('images/ChatGPT Image 1 серп. 2026 р., 16_40_25.png'), (WIDTH, HEIGHT))
+bullet_image = transform.scale(image.load('images/ТРАМП_КРУГ.png'), (20, 20))
 
 # --- ЗВУКИ ---
+mixer.music.load('music/hurryup.wav')
+mixer.music.play(-1)
+
+ball_touch = mixer.Sound('music/FX01.wav')
+win = mixer.Sound('music/Coin01.wav')
 
 # --- ГРА ---
 game_over = False
@@ -68,13 +80,17 @@ while True:
         if you_winner is None:  # Встановлюємо тільки один раз
             if game_state["winner"] == my_id:
                 you_winner = True
+
             else:
                 you_winner = False
 
+
         if you_winner:
-            text = "Ти переміг!"
+            screen.blit(fon_win, (0, 0))
+            text = ""
         else:
-            text = "Пощастить наступним разом!"
+            screen.blit(fon_lose, (0, 0))
+            text = ""
 
         win_text = font_win.render(text, True, (255, 215, 0))
         text_rect = win_text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
@@ -84,27 +100,28 @@ while True:
         text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 120))
         screen.blit(text, text_rect)
 
+        win.play()
+
         display.update()
         continue  # Блокує гру після перемоги
 
     if game_state:
-        screen.fill((30, 30, 30))
+        # screen.fill((30, 30, 30))
+        screen.blit(fon_game, (0, 0))
         draw.rect(screen, (0, 255, 0), (20, game_state['paddles']['0'], 20, 100))
         draw.rect(screen, (255, 0, 255), (WIDTH - 40, game_state['paddles']['1'], 20, 100))
         draw.circle(screen, (255, 255, 255), (game_state['ball']['x'], game_state['ball']['y']), 10)
+        screen.blit(bullet_image, (game_state['ball']['x'], game_state['ball']['y']))
         score_text = font_main.render(f"{game_state['scores'][0]} : {game_state['scores'][1]}", True, (255, 255, 255))
         screen.blit(score_text, (WIDTH // 2 -25, 20))
 
         if game_state['sound_event']:
-            if game_state['sound_event'] == 'wall_hit':
-                # звук відбиття м'ячика від стін
-                pass
             if game_state['sound_event'] == 'platform_hit':
-                # звук відбиття м'ячика від платформи
-                pass
+                ball_touch.play()
 
     else:
         wating_text = font_main.render(f"Очікування гравців...", True, (255, 255, 255))
+        screen.blit(fon_load, (0, 0))
         screen.blit(wating_text, (WIDTH // 2 - 25, 20))
 
     display.update()
